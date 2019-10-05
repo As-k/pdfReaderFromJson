@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PDFFromJSON</string>
+    <string name="list_of_reports">List of Reports</string>
+    <string name="yes">YES</string>
+</resources>
