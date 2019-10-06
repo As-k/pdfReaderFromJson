@@ -11,7 +11,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.pdffromjson.R;
 import com.example.pdffromjson.ui.fragments.ProfileFragment;
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements /*OnPageChangeLis
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .add(R.id.main_container, new ReportsFragment())
+                .add(R.id.main_container, new ProfileFragment())
                 .commit();
     }
 
@@ -57,11 +56,9 @@ public class MainActivity extends AppCompatActivity implements /*OnPageChangeLis
 
         switch (id) {
             case R.id.nav_profile:
-                Toast.makeText(this, "profile", Toast.LENGTH_SHORT).show();
                 replaceFragment(R.id.main_container, new ProfileFragment());
                 break;
             case R.id.nav_reports:
-                Toast.makeText(this, "reports", Toast.LENGTH_SHORT).show();
                 replaceFragment(R.id.main_container, new ReportsFragment());
                 break;
         }
