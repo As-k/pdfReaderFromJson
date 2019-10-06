@@ -7,8 +7,18 @@
     <dimen name="dimen_8dp">8dp</dimen>
     <dimen name="dimen_10dp">10dp</dimen>
     <dimen name="dimen_12dp">12dp</dimen>
+    <dimen name="dimen_16dp">16dp</dimen>
+    <dimen name="dimen_20dp">20dp</dimen>
+    <dimen name="dimen_24dp">24dp</dimen>
     <dimen name="dimen_40dp">40dp</dimen>
+    <dimen name="dimen_80dp">80dp</dimen>
 
-
+    <!--text font size -->
+    <dimen name="font_12sp">12sp</dimen>
     <dimen name="font_16sp">16sp</dimen>
+    <dimen name="font_18sp">18sp</dimen>
+
+
+
+    <dimen name="nav_header_height">150dp</dimen>
 </resources>
