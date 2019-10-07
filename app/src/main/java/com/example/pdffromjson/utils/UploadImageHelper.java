@@ -51,6 +51,7 @@ public class UploadImageHelper {
     private Intent cameraIntent, externalLibraryIntent;
     private String[] reqPermissions = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,};
 
 
@@ -91,7 +92,7 @@ public class UploadImageHelper {
                     cameraPath = Environment.getExternalStorageDirectory() + File.separator + System.currentTimeMillis() + ".jpg";
                     mPhotoURI = FileProvider.getUriForFile(context,
                             /*"com.example.pdffromjson"*/context.getPackageName() +
-                                    ".fileprovider",
+                                    ".provider",
                             new File(cameraPath)); //Works on all api level
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, /*Uri.fromFile(new File(cameraPath))*/mPhotoURI);
                     operateCamera(intent);
@@ -101,7 +102,10 @@ public class UploadImageHelper {
                     Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     externalLibraryIntent = intent;
                     intent.setType("image/*");
-                    operateLibrary(context, Manifest.permission.READ_EXTERNAL_STORAGE, (Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.READ_EXTERNAL_STORAGE, Intent.createChooser(intent, "Select File"), RESULT_LOAD_IMAGE);
+                    operateLibrary(context, (Activity) context,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE},
+                            Intent.createChooser(intent, "Select File"));
 
 
                 } else if (items[item].equals("Cancel")) {
@@ -112,8 +116,12 @@ public class UploadImageHelper {
         builder.show();
     }
 
-    private void operateLibrary(Context context, String readExternalStorage, Activity activityContext, String[] permissions, int readExternalStorage2, Intent chooser, int resultLoadImage) {
-        if (ContextCompat.checkSelfPermission(context, readExternalStorage) != PackageManager.PERMISSION_GRANTED) {
+    private void operateLibrary(Context context, Activity activityContext,
+                                String[] permissions, Intent chooser) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
            /* if (ActivityCompat.shouldShowRequestPermissionRationale(context2,
                     readExternalStorage)) {
                 // Show an explanation to the user *asynchronously* -- don't block
@@ -124,16 +132,16 @@ public class UploadImageHelper {
             if (activity != null) {
                 ActivityCompat.requestPermissions(activityContext,
                         permissions,
-                        readExternalStorage2);
+                        Constants.READ_EXTERNAL_STORAGE);
             } else if (fragment != null) {
                 fragment.requestPermissions(permissions, Constants.READ_EXTERNAL_STORAGE);
             }
             //}
         } else {
             if (activity != null)
-                activity.startActivityForResult(chooser, resultLoadImage);
+                activity.startActivityForResult(chooser, UploadImageHelper.RESULT_LOAD_IMAGE);
             else
-                fragment.startActivityForResult(chooser, resultLoadImage);
+                fragment.startActivityForResult(chooser, UploadImageHelper.RESULT_LOAD_IMAGE);
         }
     }
 
@@ -160,7 +168,8 @@ public class UploadImageHelper {
     }
 
     public void handleRequestPermissionResult(int requestCode, String permission, int isPermissionGranted) {
-        if (requestCode == Constants.TAKE_PHOTO_FROM_CAMERA && isPermissionGranted == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == Constants.TAKE_PHOTO_FROM_CAMERA
+                && isPermissionGranted == PackageManager.PERMISSION_GRANTED) {
             if (cameraIntent != null) {
                 if (activity != null) {
                     activity.startActivityForResult(cameraIntent, CAMERA_REQUEST);
@@ -171,7 +180,8 @@ public class UploadImageHelper {
             }
         }
 
-        if (requestCode == Constants.READ_EXTERNAL_STORAGE && isPermissionGranted == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == Constants.READ_EXTERNAL_STORAGE
+                && isPermissionGranted == PackageManager.PERMISSION_GRANTED) {
             if (externalLibraryIntent != null) {
                 if (activity != null) {
                     activity.startActivityForResult(externalLibraryIntent, RESULT_LOAD_IMAGE);
@@ -296,6 +306,7 @@ public class UploadImageHelper {
 
     }
 
+    @SuppressLint("StaticFieldLeak")
     class compressImage extends AsyncTask<Integer, Void, File> {
         private final Bitmap bitmap;
         private int image_flag;
@@ -309,8 +320,7 @@ public class UploadImageHelper {
         // Compress and Decode image in background.
         @Override
         protected File doInBackground(Integer... params) {
-            File image_str = reduceFileSize(bitmap);
-            return image_str;
+            return reduceFileSize(bitmap);
         }
 
         // This method is run on the UI thread

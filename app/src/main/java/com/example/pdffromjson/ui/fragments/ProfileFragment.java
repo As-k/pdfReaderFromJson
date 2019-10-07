@@ -4,15 +4,12 @@ package com.example.pdffromjson.ui.fragments;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.pdffromjson.R;
 import com.example.pdffromjson.ui.activity.MainActivity;
@@ -20,7 +17,6 @@ import com.example.pdffromjson.utils.Constants;
 import com.example.pdffromjson.utils.LoadImage;
 import com.example.pdffromjson.utils.UploadImageHelper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
 
@@ -36,19 +32,17 @@ public class ProfileFragment extends BaseFragment implements UploadImageHelper.O
     private static final String TAG = "ProfileFragment";
     @BindView(R.id.profile_image)
     CircleImageView profileImage;
-
-    @OnClick(R.id.profile_image)
-    void selectImage() {
-        uploadImageHelper = new UploadImageHelper(getActivity(), ProfileFragment.this, this);
-        uploadImageHelper.selectImage();
-    }
-
     UploadImageHelper uploadImageHelper;
 
     public ProfileFragment() {
         // Required empty public constructor
     }
 
+    @OnClick(R.id.profile_image)
+    void selectImage() {
+        uploadImageHelper = new UploadImageHelper(getActivity(), ProfileFragment.this, this);
+        uploadImageHelper.selectImage();
+    }
 
     @Override
     protected int getLayoutResource() {
@@ -78,12 +72,12 @@ public class ProfileFragment extends BaseFragment implements UploadImageHelper.O
         Log.e(TAG, "onRequestPermissionsResult: Profile Fragment" + Arrays.toString(permissions) + "Req Code   " + requestCode);
 
         if (requestCode == Constants.TAKE_PHOTO_FROM_CAMERA) {
-            if (grantResults.length > 0 && grantResults.length == 2) {
+            if (grantResults.length > 0 && grantResults.length == 3) {
                 if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     toastMessage("Please Allow Access File Permission to access Camera`s Picture ");
                 } else {
                     if (uploadImageHelper != null) {
-                        uploadImageHelper.handleRequestPermissionResult(requestCode, permissions[1], grantResults[1]);
+                        uploadImageHelper.handleRequestPermissionResult(requestCode, permissions[2], grantResults[2]);
                     }
                 }
             }

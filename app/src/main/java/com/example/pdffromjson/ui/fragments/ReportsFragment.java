@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 
@@ -68,7 +69,7 @@ public class ReportsFragment extends BaseFragment {
     ArrayList<String> yearList = new ArrayList<>();
     ArrayList<String> invalidYearList = new ArrayList<>();
     JSONObject objReports;
-    private ProgressDialog progDailog;
+    private ProgressDialog progressDialog;
 
     public ReportsFragment() {
         // Required empty public constructor
@@ -115,8 +116,8 @@ public class ReportsFragment extends BaseFragment {
                             reportText.setVisibility(View.VISIBLE);
 //                            pdfView.setVisibility(View.VISIBLE);
                             reportText.setText("This report need to open with pdf reader " +
-                                    "or we can direct open from sd storage 'sample.pdf' file ");
-                            setPdfFromString(report);
+                                    "or we can direct open from sd storage '"+year+".pdf' file");
+                            setPdfFromString(report, year);
                         }
                     } catch (JSONException e) {
                         pdfWebView.setVisibility(View.GONE);
@@ -139,34 +140,35 @@ public class ReportsFragment extends BaseFragment {
 
     }
 
-    private void setPdfFromString(String report) {
-        String path = Environment.getExternalStorageDirectory() + File.separator + "sample.pdf";
+    private void setPdfFromString(String report, String year) {
+        String path = Environment.getExternalStorageDirectory() + File.separator + year + ".pdf";
         File file = new File(path);
-        byte[] pdfAsBytes = Base64.decode(report, Base64.NO_WRAP);
-        FileOutputStream outputStream;
-        try {
-            outputStream = new FileOutputStream(file, false);
-            outputStream.write(pdfAsBytes);
-            outputStream.flush();
-            outputStream.close();
+            byte[] pdfAsBytes = Base64.decode(report, Base64.NO_WRAP);
+            FileOutputStream outputStream;
+            try {
+                outputStream = new FileOutputStream(file, false);
+                outputStream.write(pdfAsBytes);
+                outputStream.flush();
+                outputStream.close();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        viewPdf();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        viewPdf(year);
     }
 
     // Method for opening a pdf file
-    private void viewPdf() {
+    private void viewPdf(String year) {
         Uri mUri;
-        File pdfFile = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "sample.pdf");
+        File pdfFile = new File(Environment.getExternalStorageDirectory() + File.separator + year + ".pdf");
         if (Build.VERSION.SDK_INT >= 24) {
             mUri = FileProvider.getUriForFile(getActivity(),
                     getActivity().getPackageName() +
-                            ".fileprovider", pdfFile);
+                            ".provider", pdfFile);
         } else {
             mUri = Uri.fromFile(pdfFile);
         }
+        Log.e(TAG, "viewPdf: " + pdfFile.getPath() + "\n" + mUri);
         // Setting the intent for pdf reader
         Intent target = new Intent(Intent.ACTION_VIEW);
         target.setDataAndType(mUri, "application/pdf");
@@ -186,7 +188,7 @@ public class ReportsFragment extends BaseFragment {
         } else {
             Toast.makeText(getActivity(), "PDF apps are not installed", Toast.LENGTH_SHORT).show();
         }
-        Log.e(TAG, "viewPdf: " + pdfFile.getPath() + "\n" + mUri);
+
 //        pdfView.fromUri(mUri)
 //                .defaultPage(0)
 //                .enableSwipe(true)
@@ -198,8 +200,8 @@ public class ReportsFragment extends BaseFragment {
 
     @SuppressLint("SetJavaScriptEnabled")
     public void setPdfWebView(String reportUrl) {
-        progDailog = ProgressDialog.show(getActivity(), "Loading", "Please wait...", true);
-        progDailog.setCancelable(false);
+        progressDialog = ProgressDialog.show(getActivity(), "Loading", "Please wait...", true);
+        progressDialog.setCancelable(false);
         pdfWebView.getSettings().setJavaScriptEnabled(true);
         pdfWebView.getSettings().setSupportZoom(true);
         pdfWebView.getSettings().setLoadWithOverviewMode(true);
@@ -208,7 +210,7 @@ public class ReportsFragment extends BaseFragment {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                progDailog.show();
+                progressDialog.show();
                 view.loadUrl(url);
 
                 return true;
@@ -216,7 +218,7 @@ public class ReportsFragment extends BaseFragment {
 
             @Override
             public void onPageFinished(WebView view, final String url) {
-                progDailog.dismiss();
+                progressDialog.dismiss();
             }
         });
 
