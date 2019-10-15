@@ -6,41 +6,35 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:clickable="true"
+    android:focusable="true"
     tools:context=".ui.fragments.ReportsFragment">
 
     <Spinner
         android:id="@+id/year_pdf_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="@dimen/dimen_20dp"
         android:layout_marginRight="@dimen/dimen_20dp"
-        tools:listitem="@layout/item_pdf_json"
-        android:layout_centerHorizontal="true"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_pdf_json" />
 
     <WebView
         android:id="@+id/pdf_webView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:layout_below="@id/year_pdf_spinner" />
+        android:layout_below="@id/year_pdf_spinner"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/report_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/report_not_available"
-        android:textSize="@dimen/font_18sp"
+        android:layout_below="@id/year_pdf_spinner"
         android:gravity="center"
-        android:layout_below="@id/year_pdf_spinner" />
-
-<!--    <com.github.barteksc.pdfviewer.PDFView-->
-<!--        android:id="@+id/pdf_viewer"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:visibility="gone"-->
-<!--        android:layout_below="@id/year_pdf_spinner"/>-->
+        android:text="@string/report_not_available"
+        android:textSize="@dimen/font_18sp" />
 
 </RelativeLayout>

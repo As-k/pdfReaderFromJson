@@ -92,7 +92,7 @@ public class UploadImageHelper {
                     cameraPath = Environment.getExternalStorageDirectory() + File.separator + System.currentTimeMillis() + ".jpg";
                     mPhotoURI = FileProvider.getUriForFile(context,
                             /*"com.example.pdffromjson"*/context.getPackageName() +
-                                    ".provider",
+                                    ".fileprovider",
                             new File(cameraPath)); //Works on all api level
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, /*Uri.fromFile(new File(cameraPath))*/mPhotoURI);
                     operateCamera(intent);

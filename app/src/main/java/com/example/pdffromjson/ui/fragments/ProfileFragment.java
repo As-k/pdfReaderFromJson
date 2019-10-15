@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.example.pdffromjson.utils.UploadImageHelper;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -60,7 +62,7 @@ public class ProfileFragment extends BaseFragment implements UploadImageHelper.O
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //  super.onActivityResult(requestCode, resultCode, data);
-        Log.e(TAG, "onActivityResult: Profile Fragmetn****" + uploadImageHelper + "Result Code" + requestCode);
+        Log.e(TAG, "onActivityResult: Profile Fragment****" + uploadImageHelper + "Result Code" + requestCode);
         if (uploadImageHelper != null) {
             uploadImageHelper.onActivityResult(requestCode, resultCode, data);
         }
@@ -72,8 +74,8 @@ public class ProfileFragment extends BaseFragment implements UploadImageHelper.O
         Log.e(TAG, "onRequestPermissionsResult: Profile Fragment" + Arrays.toString(permissions) + "Req Code   " + requestCode);
 
         if (requestCode == Constants.TAKE_PHOTO_FROM_CAMERA) {
-            if (grantResults.length > 0 && grantResults.length == 3) {
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), permission) != PackageManager.PERMISSION_GRANTED) {
                     toastMessage("Please Allow Access File Permission to access Camera`s Picture ");
                 } else {
                     if (uploadImageHelper != null) {

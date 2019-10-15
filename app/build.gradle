@@ -41,8 +41,4 @@ dependencies {
      * */
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
-
-    //pdf viewer
-    implementation 'com.github.shxdos:AndroidPdfViewer:2.7.0-beta.3'
-    implementation 'com.github.kk121:File-Loader:1.2'
 }

@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -59,9 +60,6 @@ public class ReportsFragment extends BaseFragment {
 
     @BindView(R.id.pdf_webView)
     WebView pdfWebView;
-
-//    @BindView(R.id.pdf_viewer)
-//    PDFView pdfView;
 
     @BindView(R.id.report_text)
     TextView reportText;
@@ -85,7 +83,7 @@ public class ReportsFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ((MainActivity) getActivity()).getSupportActionBar().setTitle("List of reports");
+        Objects.requireNonNull(((MainActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).setTitle("List of reports");
 
         //getting all reports data from reports.json file
         getAllReports();
@@ -95,14 +93,13 @@ public class ReportsFragment extends BaseFragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position != 0) {
                     String year = yearList.get(position);
-                    Log.e(TAG, "onItemSelected: " + year);
+                    Log.d(TAG, "onItemSelected: " + year);
                     try {
                         String report = objReports.getString(year);
                         if (report.contains(".pdf")) {
                             pdfWebView.setVisibility(View.VISIBLE);
-//                            pdfView.setVisibility(View.GONE);
                             reportText.setVisibility(View.GONE);
-                            ConnectivityManager cm = (ConnectivityManager) getActivity()
+                            ConnectivityManager cm = (ConnectivityManager) Objects.requireNonNull(getActivity())
                                     .getSystemService(CONNECTIVITY_SERVICE);
                             NetworkInfo info = cm.getActiveNetworkInfo();
                             if (info != null) {
@@ -114,14 +111,12 @@ public class ReportsFragment extends BaseFragment {
                         } else {
                             pdfWebView.setVisibility(View.GONE);
                             reportText.setVisibility(View.VISIBLE);
-//                            pdfView.setVisibility(View.VISIBLE);
                             reportText.setText("This report need to open with pdf reader " +
-                                    "or we can direct open from sd storage '"+year+".pdf' file");
+                                    "or we can direct open from sd storage '" + year + ".pdf' file");
                             setPdfFromString(report, year);
                         }
                     } catch (JSONException e) {
                         pdfWebView.setVisibility(View.GONE);
-//                        pdfView.setVisibility(View.GONE);
                         reportText.setVisibility(View.VISIBLE);
                         reportText.setText(Constants.REPORT_NOT_AVAILABLE);
                         e.printStackTrace();
@@ -140,20 +135,21 @@ public class ReportsFragment extends BaseFragment {
 
     }
 
+    //converting string to pdf and storing in external storage
     private void setPdfFromString(String report, String year) {
         String path = Environment.getExternalStorageDirectory() + File.separator + year + ".pdf";
         File file = new File(path);
-            byte[] pdfAsBytes = Base64.decode(report, Base64.NO_WRAP);
-            FileOutputStream outputStream;
-            try {
-                outputStream = new FileOutputStream(file, false);
-                outputStream.write(pdfAsBytes);
-                outputStream.flush();
-                outputStream.close();
+        byte[] pdfAsBytes = Base64.decode(report, Base64.NO_WRAP);
+        FileOutputStream outputStream;
+        try {
+            outputStream = new FileOutputStream(file, false);
+            outputStream.write(pdfAsBytes);
+            outputStream.flush();
+            outputStream.close();
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         viewPdf(year);
     }
 
@@ -162,40 +158,34 @@ public class ReportsFragment extends BaseFragment {
         Uri mUri;
         File pdfFile = new File(Environment.getExternalStorageDirectory() + File.separator + year + ".pdf");
         if (Build.VERSION.SDK_INT >= 24) {
-            mUri = FileProvider.getUriForFile(getActivity(),
+            mUri = FileProvider.getUriForFile(Objects.requireNonNull(getActivity()),
                     getActivity().getPackageName() +
-                            ".provider", pdfFile);
+                            ".fileprovider", pdfFile);
         } else {
             mUri = Uri.fromFile(pdfFile);
         }
-        Log.e(TAG, "viewPdf: " + pdfFile.getPath() + "\n" + mUri);
-        // Setting the intent for pdf reader
-        Intent target = new Intent(Intent.ACTION_VIEW);
-        target.setDataAndType(mUri, "application/pdf");
-        target.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        Log.d(TAG, "viewPdf: " + pdfFile.getPath() + "\n" + mUri);
+        if (pdfFile.exists()) {
+            // Setting the intent for pdf reader
+            Intent target = new Intent(Intent.ACTION_VIEW);
+            target.setDataAndType(mUri, "application/pdf");
+            target.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            target.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PackageManager pm = getActivity().getPackageManager();
-        Intent openInChooser = Intent.createChooser(target, "Choose");
-        List<ResolveInfo> resInfo = pm.queryIntentActivities(target, 0);
-        if (resInfo.size() > 0) {
-            try {
-                getActivity().startActivity(openInChooser);
-            } catch (Throwable throwable) {
-                // PDF apps are not installed
+            PackageManager pm = Objects.requireNonNull(getActivity()).getPackageManager();
+            Intent openInChooser = Intent.createChooser(target, "Choose");
+            List<ResolveInfo> resInfo = pm.queryIntentActivities(target, 0);
+            if (resInfo.size() > 0) {
+                try {
+                    getActivity().startActivity(openInChooser);
+                } catch (Throwable throwable) {
+                    // PDF apps are not installed
+                    Toast.makeText(getActivity(), "PDF apps are not installed", Toast.LENGTH_SHORT).show();
+                }
+            } else {
                 Toast.makeText(getActivity(), "PDF apps are not installed", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(getActivity(), "PDF apps are not installed", Toast.LENGTH_SHORT).show();
         }
-
-//        pdfView.fromUri(mUri)
-//                .defaultPage(0)
-//                .enableSwipe(true)
-//                .swipeHorizontal(false)
-//                .enableDoubletap(true);
-//        pdfView.enableAnnotationRendering(true);
-//        pdfView.loadPages();
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -259,20 +249,20 @@ public class ReportsFragment extends BaseFragment {
         }
     }
 
+    //fetching json data from reports.json file
     public String loadJSONFromAsset() {
         String json = null;
         try {
-            InputStream is = getActivity().getAssets().open("reports.json");
+            InputStream is = Objects.requireNonNull(getActivity()).getAssets().open("reports.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            json = new String(buffer, "UTF-8");
+            json = new String(buffer, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return json;
     }
-
 
 }
